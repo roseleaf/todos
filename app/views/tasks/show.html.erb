@@ -1,0 +1,10 @@
+<p id="notice"><%= notice %></p>
+
+<ul>
+  <%= render @task %>
+</ul>
+
+
+
+<%= link_to 'Edit', edit_list_task_path(@list, @task) %> |
+<%= link_to 'Back', list_tasks_path(@list) %>
