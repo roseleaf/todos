@@ -7,8 +7,33 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
+<div id="container">
+  <%= yield %>
+</div>
 
-<%= yield %>
+<script type="text/javascript">
+$(document).ready(function(event){
+
+  $(".checkbox").change(function(event){
+
+    var checkboxElement = $(this);
+    var liElement = checkboxElement.closest("li");
+
+    var isCompleted = checkboxElement.is(":checked");
+    var url = liElement.attr("data-url");
+
+    var data = {
+      "_method": "put",
+      "task": {
+        "is_completed": (isCompleted ? 1 : 0)
+      }
+    };
+
+    $.post(url, data);
+  });
+
+});
+</script>
 
 </body>
 </html>
