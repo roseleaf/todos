@@ -1,4 +1,5 @@
 require "rest-client"
+require "json"
 
 class TodoClient
 
@@ -8,109 +9,99 @@ class TodoClient
     puts "Welcome to the Garden of Goals Command Line Interface!"
     command = ""
     while command != "quit"
+      puts ""
       printf "Enter Command: "
       command = gets.chomp
       command_array = command.split
+      puts ""
 
+
+      list_id = nil
+      task_id = nil
+
+      if command_array[1] == "list" && command_array[2].to_i.to_s == command_array[2]
+        list_id = command_array[2].to_i
+      end
+
+      if list_id && command_array[3] == "task" && command_array[4].to_i.to_s == command_array[4]
+        task_id = command_array[4].to_i
+      end
 
       case command_array[0]
         when "show"
 
-          if command_array[1] == "lists"
-            index_lists
-
-          elsif command_array[1] == "list" && command_array[2]
-            list_id = command_array[2]
-
+          # show list 1
+          if list_id
             show_list(list_id)
+
+          # show lists
+          elsif command_array[1] == "lists"
+            index_lists
+            
           end
 
 
         when "add"
 
-          if command_array[1] == "list"
+          # add list 1 task
+          if list_id && command_array[3] == "task"
 
-            if command_array[3] == "task"
+            text = command_array[4..-1].join(" ")
+            create_task(list_id, text)
 
-              list_id = command_array[2]
-              text = command_array[4..-1].join(" ")
-              create_task(list_id, text)
+          # add list
+          elsif command_array[1] == "list"
 
-            else
-              name = command_array[2..-1].join(" ")
-              create_list(name)
-            end
+            name = command_array[2..-1].join(" ")
+            create_list(name)
 
           end
 
 
         when "rename"
 
-          if command_array[1] == "list"
+          # rename list 1 task 1
+          if list_id && task_id
+            
+            text = command_array[5..-1].join(" ")
+            rename_task(list_id, task_id, text)            
 
-            list_id = command_array[2]
-
-            if command_array[3] == "task"
-
-              task_id = command_array[4]
-
-              text = command_array[5..-1].join(" ")
-              rename_task(list_id, task_id, text)
-
-            else
-              name = command_array[3..-1].join(" ")
-              rename_list(list_id, name)
-            end
+          # rename list 1
+          elsif list_id
+            name = command_array[3..-1].join(" ")
+            rename_list(list_id, name)          
 
           end
 
+
         when "delete"
 
-          if command_array[1] == "list"
+          # delete list 1 task 1
+          if list_id && task_id
+            delete_task(list_id, task_id)
 
-            list_id = command_array[2]
-
-            if command_array[3] == "task"
-
-              task_id = command_array[4]
-
-              delete_task(list_id, task_id)
-
-            else
-              delete_list(list_id)
-            end
+          # delete list 1
+          elsif list_id
+            delete_list(list_id)
 
           end
 
         when "check"
 
-          if command_array[1] == "list"
+          # check list 1 task 1
+          if list_id && task_id
 
-            list_id = command_array[2]
-
-            if command_array[3] == "task"
-
-              task_id = command_array[4]
-
-              complete_task(list_id, task_id, true)
-
-            end
+            complete_task(list_id, task_id, true)
 
           end
 
+
         when "uncheck"
 
-          if command_array[1] == "list"
-
-            list_id = command_array[2]
-
-            if command_array[3] == "task"
-
-              task_id = command_array[4]
+          # uncheck list 1 task 1 
+          if list_id && task_id
 
               complete_task(list_id, task_id, false)
-
-            end
 
           end
 
@@ -128,36 +119,86 @@ class TodoClient
   def request(path, params={}, method=:get)
     url = HOST + path + ".json"
 
-    if method == :get
-      response = RestClient.get(url, params)
-    else
+    # "Send" method calls first argument as method on object, with other arguments as method arguments.
+    response = RestClient.send(method, url, params)
 
-      if method == :put
-        params << {"_method" => "put"}
-      elsif method == :delete
-        params << {"_method" => "delete"}
-      end
+    # if method == :get
+    #   response = RestClient.get(url, params)
+    # else
 
-      response = RestClient.post(url, params)
-    end
+    # THESE GUYS DON'T WORK, NEED RestClient.put or RestClient.delete methods
+    #   if method == :put
+    #     params.merge({"_method" => "put"})
+    #   elsif method == :delete
+    #     params.merge({"_method" => "delete"})
+    #   end
 
-    puts response
+    #   response = RestClient.post(url, params)
+    # end
+
+    # puts response
     
-    response
+    parse_request(response)
   end
+
+  def parse_request(response)
+    # OK Request, no content as response
+    if response == ""
+      true
+    # JSON content
+    else
+      JSON.parse(response, symbolize_names: true)
+    end
+  end
+
 
   # LIST
 
   # show lists
   def index_lists
     path = "lists"
-    request(path)
+    response = request(path)
+    parse_index_lists(response)
+  end
+
+  def parse_index_lists(lists)
+    if lists.empty?
+      puts "Sorry, there are no lists found. Type: 'add list [name of list]' to create a new one."
+    else
+      puts "These are all the lists:"
+      puts_line
+      lists.each do |list|
+        puts_list(list)
+      end
+      puts_line
+      puts "To view tasks in one list, type: 'show list [List ID]'"
+      puts_line
+    end
   end
 
   # show list 1
   def show_list(list_id)
     path = "lists/#{list_id}"
-    request(path)
+    response = request(path)
+    parse_show_list(response)
+  end
+
+  def parse_show_list(list_and_task_array)
+    list = list_and_task_array[0]
+    tasks = list_and_task_array[1]
+    puts_list(list)
+    puts_line
+    if tasks.empty?
+      puts "Sorry, no tasks have been added to this list yet. To add one, type: 'add list #{list[:id]} task [name of your task]'"
+    else
+      tasks.each do |task|
+        puts_task(task)
+      end
+      puts_line
+      puts "To make a task completed or incomplete, type 'check list #{list[:id]} task [Task ID]' or 'uncheck list #{list[:id]} task [Task ID]'"
+    end    
+    puts_line
+   
   end
 
   # add list Things to bring to fun day out
@@ -210,6 +251,9 @@ class TodoClient
     end
     params = {task: {is_completed: completed}}
     request(path, params, :put)
+
+    # output full list again
+    show_list(list_id)
   end
 
   # delete list 1 task 1
@@ -217,6 +261,25 @@ class TodoClient
     path = "lists/#{list_id}/tasks/#{task_id}"
     params = {}
     request(path, params, :delete)
+  end
+
+
+  # PRESENTATION METHODS
+
+  def puts_line
+    puts "- - - - - - - - - - - - - - - - - - - - -"
+  end
+
+  def puts_list(list)
+    puts "List ID: #{list[:id]}. #{list[:name]}"
+  end
+
+  def puts_task(task)
+    if task[:is_completed]
+      puts "[x] Task ID: #{task[:id]}. #{task[:text]}"
+    else
+      puts "[ ] Task ID: #{task[:id]}. #{task[:text]}"
+    end
   end
 
 end
