@@ -6,7 +6,11 @@ class TodoClient
   HOST = "http://todos.dev/"
 
   def run
+    puts "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
     puts "Welcome to the Garden of Goals Command Line Interface!"
+    puts "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"
+    puts ""
+    puts "To view lists, type 'show lists'"
     command = ""
     while command != "quit"
       puts ""
@@ -189,7 +193,7 @@ class TodoClient
     puts_list(list)
     puts_line
     if tasks.empty?
-      puts "Sorry, no tasks have been added to this list yet. To add one, type: 'add list #{list[:id]} task [name of your task]'"
+      puts "This list is still empty. To add one, type: 'add list #{list[:id]} task [name of your task]'"
     else
       tasks.each do |task|
         puts_task(task)
@@ -205,7 +209,10 @@ class TodoClient
   def create_list(name)
     path = "lists"
     params = { list: { name: name }}
-    request(path, params, :post)
+    list = request(path, params, :post)
+    list_id = list[:id]
+    # output full list again
+    show_list(list_id)
   end
 
   # rename list 1 Bring stuff
@@ -213,6 +220,9 @@ class TodoClient
     path = "lists/#{list_id}"
     params = { list: { name: name }}
     request(path, params, :put )
+ 
+    # output full list again
+    show_list(list_id)
   end
 
   # delete list 1
@@ -220,6 +230,9 @@ class TodoClient
     path = "lists/#{list_id}"
     params = {}
     request(path, params, :delete )
+ 
+    #return to list of lists
+    index_lists
   end
 
 
@@ -231,6 +244,9 @@ class TodoClient
     path = "lists/#{list_id}/tasks"
     params = {task: {text: text}}
     request(path, params, :post)
+
+    # output full list again
+    show_list(list_id)
   end
 
   # rename list 1 task 1 Buy some apples
@@ -238,6 +254,9 @@ class TodoClient
     path = "lists/#{list_id}/tasks/#{task_id}"
     params = {task: {text: text}}
     request(path, params, :put)
+    
+    # output full list again
+    show_list(list_id)
   end
 
   # check list 1 task 1
@@ -271,7 +290,12 @@ class TodoClient
   end
 
   def puts_list(list)
-    puts "List ID: #{list[:id]}. #{list[:name]}"
+    if list[:tasks_count].to_i == 1
+      task_count = list[:tasks_count].to_s + " task"
+    else
+      task_count = list[:tasks_count].to_s + " tasks"
+    end
+    puts "List ID: #{list[:id]}. #{list[:name]}  (#{task_count})"
   end
 
   def puts_task(task)
