@@ -1,3 +1,9 @@
+<% 
+  unless @task
+    @task = @list.tasks.build
+  end
+%>
+
 <%= form_for([@list, @task]) do |f| %>
   <% if @task.errors.any? %>
     <div id="error_explanation">

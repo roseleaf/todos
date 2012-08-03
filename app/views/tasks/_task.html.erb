@@ -1,9 +1,6 @@
-  
-<% unless task.id.blank? %>
-   <li class="task" data-url="<%= list_task_path(task.list, task) %>">
-    <input class="checkbox" type="checkbox" name="task-id-<%= task.list.id %>" value="completed" <%= task.is_completed? ? "checked" : "" %> >
-    <%= task.text %> | 
-    <%= link_to 'Edit', edit_list_task_path(task.list, task) %> |
-    <%= link_to 'Delete', list_task_path(task.list, task), method: :delete %> 
-   </li>
-<% end %>
+<li class="task" data-url="<%= list_task_path(task.list, task) %>">
+  <input class="checkbox" type="checkbox" name="task-id-<%= task.list.id %>" value="completed" <%= task.is_completed? ? "checked" : "" %> >
+  <%= task.text %> | 
+  <%= link_to 'Edit', edit_list_task_path(task.list, task) %> |
+  <%= link_to 'Delete', list_task_path(task.list, task), method: :delete %> 
+</li>

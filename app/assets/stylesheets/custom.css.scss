@@ -107,6 +107,21 @@ form label {
   color: #999;
 }
 
+input[type="submit"] {
+  border: 3px solid #ccc;
+  background: #ddd;
+  @include border-radius(5px);
+  font-weight: bold;
+  display: inline-block;
+  padding: 3px 5px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #999;
+    background: #ccc;
+  }
+}
+
 #notice {
   color: green; }
 

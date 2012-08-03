@@ -9,12 +9,11 @@ class ListsController < ApplicationController
   end
 
   def show
-    @list = List.find(params[:id])
-    @task = @list.tasks.build
+    @list = List.includes(:tasks).find(params[:id])
 
     respond_to do |format|
       format.html 
-      format.json { render json: @list }
+      format.json { render json: [@list, @list.tasks] }
     end
   end
 
