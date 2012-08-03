@@ -1,4 +1,8 @@
 Todos::Application.routes.draw do
+  get "pages/home"
+
+  root to: "pages#home"
+
   resources :lists do
       resources :tasks 
   end

@@ -1,0 +1,102 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #e0fff1;
+  color: #657d87;
+  font-family: 'Viga', sans-serif;
+  font-size: 18px;
+  line-height: 1.6; }
+
+p, ol, ul, td {
+ }
+
+pre {
+  background-color: #eee;
+  padding: 10px; }
+
+a {
+  color: #e02268;
+  text-decoration: none;
+  &:hover {
+    color: #7228e0;
+  }
+}
+
+div {
+  &.field, &.actions {
+    margin-bottom: 10px; } }
+
+
+
+#container{
+  width: 750px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 20px;
+  @include border-bottom-radius(10px);
+}
+
+.header {
+  background: #00cc99;
+  color: #ffc;
+  padding: 20px;
+
+  > h1 {
+    margin: 0;
+    padding: 0;
+    width: 750px;
+    margin: auto;
+    font-family: 'Amatic SC', cursive;
+    font-weight: 700;
+    font-size: 120px;
+    line-height: 1.0;
+    text-shadow: 0px 2px 10px rgba(0,0,0,0.3);
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-bottom: 3px solid #ddd;
+
+  th {
+    padding: 5px;
+    color: #ccc;
+    text-align: left;
+  }
+
+  td {
+    padding: 5px;
+    border-top: 3px solid #ddd;
+
+  }
+
+}
+
+#notice {
+  color: green; }
+
+.field_with_errors {
+  padding: 2px;
+  background-color: red;
+  display: table; }
+
+#error_explanation {
+  width: 450px;
+  border: 2px solid red;
+  padding: 7px;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+  background-color: #f0f0f0;
+  h2 {
+    text-align: left;
+    font-weight: bold;
+    padding: 5px 5px 5px 15px;
+    font-size: 12px;
+    margin: -7px;
+    margin-bottom: 0px;
+    background-color: #c00;
+    color: #fff; }
+  ul li {
+    font-size: 12px;
+    list-style: square; } }
